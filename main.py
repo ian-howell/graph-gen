@@ -15,6 +15,7 @@ class Config:
         self.weighted = config["GRAPH"].getboolean("weighted")
         self.alpha = float(config["GRAPH"]["alpha"])
         self.beta = float(config["GRAPH"]["beta"])
+        self.output_gv_name = config["GRAPH"]["output_gv_name"]
 
 
 def main(config_file):
@@ -23,6 +24,7 @@ def main(config_file):
     print(config.num_nodes, len(graph))
     for edge in graph:
         print(*edge)
+    to_graphviz(graph, config)
 
 
 def create_graph(config):
@@ -73,6 +75,31 @@ def random_num_edges(min_edges, max_edges, alpha, beta):
     selector = random.betavariate(alpha, beta)
     edge_range = max_edges - min_edges + 1
     return math.floor(edge_range * selector) + min_edges
+
+
+def to_graphviz(graph, config):
+    name = config.output_gv_name
+    filename = name + ".gv"
+    with open(filename, "w") as f:
+        edgeop = "--"
+        graph_type = "graph"
+        if config.directed:
+            edgeop = "->"
+            graph_type = "digraph"
+
+        f.write("{} {} {{\n".format(graph_type, name))
+        f.write("  0 [style=filled,fillcolor=green]\n")
+        f.write("  {} [style=filled,fillcolor=red]\n".format(config.num_nodes-1))
+        for edge in graph:
+            if config.weighted:
+                # Flip the weight. For some reason, graphviz thinks that larger
+                # weights should correlate to shorter edges
+                weight = config.max_weight - edge[2] + config.min_weight
+                f.write("  {} {} {} [weight={},label={}]\n".format(edge[0],
+                    edgeop, edge[1], weight, edge[2]))
+            else:
+                f.write("  {} {} {} [weight=1]\n".format(edge[0], edgeop, edge[1]))
+        f.write("}\n")
 
 
 if __name__ == "__main__":
