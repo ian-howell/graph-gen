@@ -1,0 +1,8 @@
+# Normal Python stuff
+__pycache__/
+
+# Output files
+*.txt
+*.gv
+*.ps
+*.png
