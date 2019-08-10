@@ -1,4 +1,5 @@
 import configparser
+import math
 import os
 import random
 
@@ -12,6 +13,8 @@ class Config:
         self.min_weight = int(config["GRAPH"]["min_weight"])
         self.num_nodes = int(config["GRAPH"]["num_nodes"])
         self.weighted = config["GRAPH"].getboolean("weighted")
+        self.alpha = float(config["GRAPH"]["alpha"])
+        self.beta = float(config["GRAPH"]["beta"])
 
 
 def main(config_file):
@@ -32,7 +35,7 @@ def create_graph(config):
         # if it's directed, just double that number
         max_edges *= 2
         min_edges = ((num_nodes-1)*(num_nodes-2)) + 1
-    num_edges = random.randint(min_edges, max_edges)
+    num_edges = random_num_edges(min_edges, max_edges, config.alpha, config.beta)
     edges = set()
     while len(edges) < num_edges:
         from_node = random.randrange(num_nodes)
@@ -64,6 +67,12 @@ def create_graph(config):
         weighted_edges |= {weighted_edge}
 
     return weighted_edges
+
+
+def random_num_edges(min_edges, max_edges, alpha, beta):
+    selector = random.betavariate(alpha, beta)
+    edge_range = max_edges - min_edges + 1
+    return math.floor(edge_range * selector) + min_edges
 
 
 if __name__ == "__main__":
