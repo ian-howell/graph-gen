@@ -17,7 +17,7 @@ class Config:
 def main(config_file):
     config = Config(config_file)
     graph = create_graph(config)
-    print(len(graph))
+    print(config.num_nodes, len(graph))
     for edge in graph:
         print(*edge)
 
